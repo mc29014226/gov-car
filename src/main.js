@@ -4,11 +4,12 @@ import { showPage } from './ui/pages.js';
 
 window.showPage = showPage;
 
-window.selectUser = (el, id) => {
-    document.querySelectorAll('.user-btn').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-    store.selectedUser = store.users.find(u => u.id === id)?.name;
-    renderUserBtns();
+window.selectUser = (userId) => {
+  const user = store.users.find(u => u.id === userId);
+  if (!user) return;
+
+  store.selectedUser = user;
+  renderUserBtns();
 };
 
 const renderUserBtns = () => {
