@@ -13,8 +13,15 @@ export const renderUserBtns = () => {
     const container = document.getElementById('user-btns-record');
     if (!container) return;
     container.innerHTML = store.users.map(user => `
-        <button class="user-btn" onclick="selectUser(this, '${user.id}')" 
-                style="border-color: ${user.color}; color: ${user.color}">
+        <button 
+            class="user-btn ${store.selectedUser?.id === user.id ? 'selected' : ''}" 
+            style="background:${user.color};color:${user.text_color}" 
+            onclick="window.selectUser(this, '${user.id}')"
+        >
+            ${user.name}
+        </button>
+    `).join('');
+}; color: ${user.color}">
             ${user.name}
         </button>
     `).join('');
