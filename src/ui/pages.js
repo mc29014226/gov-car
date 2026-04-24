@@ -15,6 +15,7 @@ export const showPage = (pageId) => {
   const pages = ['record', 'return', 'history', 'stats', 'users', 'settings'];
   const index = pages.indexOf(pageId);
   const navItems = document.querySelectorAll('.nav-item');
+
   if (index >= 0 && navItems[index]) {
     navItems[index].classList.add('active');
   }
