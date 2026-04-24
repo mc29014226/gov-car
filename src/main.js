@@ -3,20 +3,18 @@ import { initSupabase, fetchAllData, addUserToDb } from './services/supabase.js'
 import { showPage, renderUserBtns, renderUserList } from './ui/pages.js';
 
 window.showPage = showPage;
+
 window.selectUser = (el, id) => {
     document.querySelectorAll('.user-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
-    store.currentUserId = id;
+    store.selectedUser = store.users.find(u => u.id === id);
 };
 
 window.addUser = async () => {
     const input = document.getElementById('new-user-name');
     const name = input.value.trim();
     
-    if (!name) {
-        alert('請輸入姓名');
-        return;
-    }
+    if (!name) return;
 
     if (store.users.some(u => u.name === name)) {
         alert('使用者已存在');
@@ -37,12 +35,8 @@ window.addUser = async () => {
         await fetchAllData();
         renderUserList();
         renderUserBtns();
-        alert('新增成功');
     }
 };
-
-// 其餘功能維持 Stub 狀態
-window.removeUser = (id) => console.log('Remove user:', id);
 
 const bootstrap = async () => {
     const settings = JSON.parse(localStorage.getItem('car_log_settings') || '{}');
