@@ -1,0 +1,15 @@
+{
+  "name": "gov-car-netlify-supabase",
+  "private": true,
+  "version": "1.0.0",
+  "description": "公務車里程記錄系統 - Netlify + Supabase",
+  "scripts": {
+    "dev": "npx serve . -l 8080",
+    "netlify:dev": "netlify dev",
+    "preview": "npx serve . -l 8080"
+  },
+  "devDependencies": {
+    "netlify-cli": "^23.7.0",
+    "serve": "^14.2.4"
+  }
+}
