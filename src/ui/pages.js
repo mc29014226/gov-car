@@ -1,19 +1,18 @@
-import { store } from '../state/store.js';
 export const showPage = (name) => {
+    // 切換 .page.active
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    const el = document.getElementById('page-' + name);
-    if(el) el.classList.add('active');
-};
-export const setDefaultTime = () => {
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    document.querySelectorAll('input[type="datetime-local"]').forEach(i => i.value = now.toISOString().slice(0, 16));
-};
-export const loadLastKm = () => {
-    const last = store.records.find(r => r.status === 'done');
-    if (last && document.getElementById('dep-km')) document.getElementById('dep-km').value = last.arr_km;
-};
-export const hideLoading = () => {
-    const el = document.getElementById('loading');
-    if (el) el.style.display = 'none';
+    const targetPage = document.getElementById('page-' + name);
+    if (targetPage) targetPage.classList.add('active');
+
+    // 切換 .nav-item.active
+    document.querySelectorAll('.nav-item').forEach(nav => {
+        const label = nav.innerText || '';
+        const isMatch = (name === 'record' && label.includes('出車')) || 
+                        (name === 'return' && label.includes('回車')) || 
+                        (name === 'history' && label.includes('歷史')) ||
+                        (name === 'stats' && label.includes('統計')) ||
+                        (name === 'users' && label.includes('管理')) ||
+                        (name === 'settings' && label.includes('設定'));
+        nav.classList.toggle('active', isMatch);
+    });
 };

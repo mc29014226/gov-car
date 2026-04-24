@@ -5,6 +5,6 @@ export const store = {
   locations: [],
   selectedUser: null,
   selectedPendingId: null,
-  selectedColor: '#4f46e5',
+  selectedColor: null,
   selectedLocation: null
 };
