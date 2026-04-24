@@ -1,26 +1,23 @@
 import { store } from '../state/store.js';
 
+let supabaseClient = null;
+
 export const initSupabase = (url, key) => {
-    if (typeof supabase !== 'undefined') {
-        store.sb = supabase.createClient(url, key);
-        return true;
-    }
-    return false;
+    supabaseClient = supabase.createClient(url, key);
 };
 
 export const fetchAllData = async () => {
-    if (!store.sb) return;
-    try {
-        const [u, r, l] = await Promise.all([
-            store.sb.from('users').select('*').order('name'),
-            store.sb.from('records').select('*').order('created_at', { ascending: false }),
-            store.sb.from('locations').select('*').order('name').maybeSingle()
-        ]);
-        store.users = u.data || [];
-        store.records = r.data || [];
-        // 容錯處理：若 locations 為空或表不存在，不阻斷執行
-        store.locations = (l && l.data) ? (Array.isArray(l.data) ? l.data : [l.data]) : [];
-    } catch (e) {
-        console.warn('Data sync partially failed, check table existence.', e);
-    }
+    const { data: users } = await supabaseClient.from('users').select('*').order('name');
+    const { data: records } = await supabaseClient.from('records').select('*').order('depart_at', { ascending: false }).limit(20);
+    const { data: locations } = await supabaseClient.from('locations').select('*').order('name');
+    
+    store.users = users || [];
+    store.records = records || [];
+    store.locations = locations || [];
+    return store;
+};
+
+export const addUserToDb = async (userData) => {
+    if (!supabaseClient) return { error: 'Supabase not initialized' };
+    return await supabaseClient.from('users').insert([userData]);
 };

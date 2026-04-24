@@ -1,33 +1,50 @@
-
 import { store } from './state/store.js';
-import { initSupabase, fetchAllData } from './services/supabase.js';
-import { showPage } from './ui/pages.js';
+import { initSupabase, fetchAllData, addUserToDb } from './services/supabase.js';
+import { showPage, renderUserBtns, renderUserList } from './ui/pages.js';
 
-// 既有功能恢復 (Legacy Bridge)
 window.showPage = showPage;
-window.closeModal = () => { document.getElementById('modal-bg').style.display = 'none'; };
-window.toggleCheck = (el) => { el.classList.toggle('checked'); };
-window.toggleFuel = (el) => { document.getElementById('fuel-fields').style.display = el.checked ? 'block' : 'none'; };
-
-window.saveSettings = async () => {
-    const url = document.getElementById('sb-url').value;
-    const key = document.getElementById('sb-key').value;
-    localStorage.setItem('car_log_settings', JSON.stringify({ url, key }));
-    location.reload();
+window.selectUser = (el, id) => {
+    document.querySelectorAll('.user-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    store.currentUserId = id;
 };
 
-window.addUser = () => { console.log('Legacy: addUser'); };
-window.removeUser = (id) => { console.log('Legacy: removeUser', id); };
-window.submitDepart = () => { console.log('Legacy: submitDepart'); };
-window.submitReturn = () => { console.log('Legacy: submitReturn'); };
-window.cancelReturn = () => { window.showPage('record'); };
-window.handleKmImage = (e) => { console.log('Legacy: handleKmImage'); };
-window.renderHistory = () => { console.log('Legacy: renderHistory'); };
-window.renderStats = () => { console.log('Legacy: renderStats'); };
-window.deleteRecord = (id) => { console.log('Legacy: deleteRecord', id); };
+window.addUser = async () => {
+    const input = document.getElementById('new-user-name');
+    const name = input.value.trim();
+    
+    if (!name) {
+        alert('請輸入姓名');
+        return;
+    }
+
+    if (store.users.some(u => u.name === name)) {
+        alert('使用者已存在');
+        return;
+    }
+
+    const newUser = {
+        name,
+        color: '#3b82f6',
+        text_color: '#ffffff'
+    };
+
+    const { error } = await addUserToDb(newUser);
+    if (error) {
+        alert('新增失敗: ' + error.message);
+    } else {
+        input.value = '';
+        await fetchAllData();
+        renderUserList();
+        renderUserBtns();
+        alert('新增成功');
+    }
+};
+
+// 其餘功能維持 Stub 狀態
+window.removeUser = (id) => console.log('Remove user:', id);
 
 const bootstrap = async () => {
-    console.log('GOLEM_SYSTEM: Bridge Established');
     const settings = JSON.parse(localStorage.getItem('car_log_settings') || '{}');
     if (settings.url && settings.key) {
         initSupabase(settings.url, settings.key);

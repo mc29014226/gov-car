@@ -1,18 +1,30 @@
-export const showPage = (name) => {
-    // 切換 .page.active
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    const targetPage = document.getElementById('page-' + name);
-    if (targetPage) targetPage.classList.add('active');
+import { store } from '../state/store.js';
 
-    // 切換 .nav-item.active
-    document.querySelectorAll('.nav-item').forEach(nav => {
-        const label = nav.innerText || '';
-        const isMatch = (name === 'record' && label.includes('出車')) || 
-                        (name === 'return' && label.includes('回車')) || 
-                        (name === 'history' && label.includes('歷史')) ||
-                        (name === 'stats' && label.includes('統計')) ||
-                        (name === 'users' && label.includes('管理')) ||
-                        (name === 'settings' && label.includes('設定'));
-        nav.classList.toggle('active', isMatch);
-    });
+export const showPage = (pageId) => {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(`page-${pageId}`).classList.add('active');
+    if (pageId === 'record') renderUserBtns();
+    if (pageId === 'settings') renderUserList();
+};
+
+export const renderUserBtns = () => {
+    const container = document.getElementById('user-btns');
+    if (!container) return;
+    container.innerHTML = store.users.map(user => `
+        <button class="user-btn" onclick="selectUser(this, '${user.id}')" 
+                style="border-color: ${user.color}; color: ${user.color}">
+            ${user.name}
+        </button>
+    `).join('');
+};
+
+export const renderUserList = () => {
+    const container = document.getElementById('user-list');
+    if (!container) return;
+    container.innerHTML = store.users.map(user => `
+        <div class="list-item">
+            <span style="color: ${user.color}">● ${user.name}</span>
+            <button class="btn-danger" onclick="removeUser('${user.id}')">刪除</button>
+        </div>
+    `).join('');
 };
