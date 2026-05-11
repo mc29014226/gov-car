@@ -1,3 +1,7 @@
+/**
+ * gov-car UI Pages Module - Physical Sync Override
+ * Verified: 2026-05-11 09:12
+ */
 import { store } from '../state/store.js';
 
 export const showPage = (pageId) => {
