@@ -1,7 +1,3 @@
-/**
- * gov-car UI Pages Module - Physical Sync Override
- * Verified: 2026-05-11 09:12
- */
 import { store } from '../state/store.js';
 
 export const showPage = (pageId) => {
@@ -9,7 +5,7 @@ export const showPage = (pageId) => {
     page.classList.remove('active');
   });
 
-  const target = document.getElementById(`page-${pageId}`);
+  const target = document.getElementById('page-' + pageId);
   if (target) target.classList.add('active');
 
   document.querySelectorAll('.nav-item').forEach(item => {
@@ -37,15 +33,15 @@ export const renderUserBtns = () => {
     return;
   }
 
-  container.innerHTML = store.users.map(user => `
-    <button
-      class="user-btn ${store.selectedUser?.id === user.id ? 'selected' : ''}"
-      style="background:${user.color};color:${user.text_color}"
-      onclick="window.selectUser('${user.id}')"
-    >
-      ${user.name}
-    </button>
-  `).join('');
+  container.innerHTML = store.users.map(user => [
+    '<button',
+    ' class="user-btn ' + ((store.selectedUser && store.selectedUser.id === user.id) ? 'selected' : '') + '"',
+    ' style="background:' + user.color + ';color:' + user.text_color + '"',
+    ' onclick="window.selectUser(\'' + user.id + '\')"',
+    '>',
+    user.name,
+    '</button>'
+  ].join('')).join('');
 };
 
 export const renderUserList = () => {
@@ -57,12 +53,12 @@ export const renderUserList = () => {
     return;
   }
 
-  container.innerHTML = store.users.map(user => `
-    <div class="user-list-item">
-      <div class="user-circle" style="background:${user.color};color:${user.text_color}">
-        ${user.name.charAt(0)}
-      </div>
-      <span style="flex:1;font-size:15px;font-weight:500">${user.name}</span>
-    </div>
-  `).join('');
+  container.innerHTML = store.users.map(user => [
+    '<div class="user-list-item">',
+    '<div class="user-circle" style="background:' + user.color + ';color:' + user.text_color + '">',
+    user.name.charAt(0),
+    '</div>',
+    '<span style="flex:1;font-size:15px;font-weight:500">' + user.name + '</span>',
+    '</div>'
+  ].join('')).join('');
 };
