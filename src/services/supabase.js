@@ -22,10 +22,19 @@ export const fetchAllData = async () => {
     .order('dep_time', { ascending: false })
     .limit(50);
 
-  const { data: locations } = await supabaseClient
-    .from('locations')
-    .select('*')
-    .order('name', { ascending: true });
+  let locations = [];
+  try {
+    const { data } = await supabaseClient
+      .from('locations')
+      .select('*')
+      .order('name', { ascending: true });
+    locations = data || [];
+  } catch {
+    locations = [];
+  }
+
+  if (usersError) console.error('讀取 users 失敗：', usersError);
+  if (recordsError) console.error('讀取 records 失敗：', recordsError);
 
   if (!usersError) store.users = users || [];
   if (!recordsError) store.records = records || [];

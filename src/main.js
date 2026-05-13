@@ -117,23 +117,31 @@ function hideLoading() {
 }
 
 async function bootstrap() {
+  window.showPage = showPage;
+
   const settings = loadSettings();
   fillSettingsInputs(settings);
 
   if (settings && settings.url && settings.key) {
-    initSupabase(settings.url, settings.key);
-    await fetchAllData();
+    try {
+      initSupabase(settings.url, settings.key);
+      await fetchAllData();
 
-    const lastUserId = localStorage.getItem('gov_car_last_user_id');
-    if (lastUserId) {
-      const lastUser = store.users.find((u) => String(u.id) === String(lastUserId));
-      if (lastUser) store.selectedUser = lastUser;
+      const lastUserId = localStorage.getItem('gov_car_last_user_id');
+      if (lastUserId) {
+        const lastUser = store.users.find((u) => String(u.id) === String(lastUserId));
+        if (lastUser) store.selectedUser = lastUser;
+      }
+
+      setDbStatus(true);
+      renderUserBtns();
+      renderUserList();
+      showPage('record');
+    } catch (error) {
+      console.error('初始化 Supabase 失敗：', error);
+      setDbStatus(false);
+      showPage('settings');
     }
-
-    setDbStatus(true);
-    renderUserBtns();
-    renderUserList();
-    showPage('record');
   } else {
     setDbStatus(false);
     showPage('settings');
