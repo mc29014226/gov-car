@@ -48,7 +48,5 @@ export const addUserToDb = async (userData) => {
     return { error: { message: 'Supabase not initialized' } };
   }
 
-  return await supabaseClient
-    .from('users')
-    .insert([userData]);
+  return await supabaseClient.from('users').insert([userData]);
 };
