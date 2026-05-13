@@ -65,13 +65,19 @@ window.saveSettings = async () => {
 
   localStorage.setItem(SETTINGS_KEY, JSON.stringify({ url, key }));
 
-  initSupabase(url, key);
-  await fetchAllData();
+  try {
+    initSupabase(url, key);
+    await fetchAllData();
 
-  setDbStatus(true);
-  renderUserBtns();
-  renderUserList();
-  showPage('record');
+    setDbStatus(true);
+    renderUserBtns();
+    renderUserList();
+    showPage('record');
+  } catch (error) {
+    console.error('Supabase 連線失敗：', error);
+    setDbStatus(false);
+    alert('連線失敗，請確認 Supabase URL 和 Key');
+  }
 };
 
 function loadSettings() {
@@ -117,8 +123,6 @@ function hideLoading() {
 }
 
 async function bootstrap() {
-  window.showPage = showPage;
-
   const settings = loadSettings();
   fillSettingsInputs(settings);
 
