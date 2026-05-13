@@ -7,6 +7,22 @@ const OLD_SETTINGS_KEY = 'car_log_settings';
 
 window.showPage = showPage;
 
+function bindNavigation() {
+  const navMap = ['record', 'return', 'history', 'stats', 'users', 'settings'];
+  const navItems = document.querySelectorAll('.nav-item');
+
+  navItems.forEach((item, index) => {
+    const pageId = navMap[index];
+    if (!pageId) return;
+
+    item.style.cursor = 'pointer';
+
+    item.addEventListener('click', () => {
+      showPage(pageId);
+    });
+  });
+}
+
 window.selectUser = (userId) => {
   const user = store.users.find((u) => String(u.id) === String(userId));
   if (!user) return;
@@ -168,6 +184,8 @@ function hideLoading() {
 }
 
 async function bootstrap() {
+  bindNavigation();
+  
   const settings = loadSettings();
   fillSettingsInputs(settings);
 
