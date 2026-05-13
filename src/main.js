@@ -16,39 +16,84 @@ window.selectUser = (userId) => {
   renderUserBtns();
 };
 
-window.addUser = async () => {
-  const input = document.getElementById('new-user-name');
-  if (!input) return;
+window.toggleCheck = (label) => {
+  setTimeout(() => {
+    const checkbox = label.querySelector('input[type="checkbox"]');
+    label.classList.toggle('checked', !!checkbox?.checked);
+  }, 0);
+};
 
-  const name = input.value.trim();
-  if (!name) return;
-
+window.submitDepart = async () => {
   if (!store.sb) {
     alert('請先設定 Supabase 連線');
     showPage('settings');
     return;
   }
 
-  if (store.users.some((u) => u.name === name)) {
-    alert('使用者已存在');
+  if (!store.selectedUser) {
+    alert('請先選擇使用者');
     return;
   }
 
-  const { error } = await addUserToDb({
-    name,
-    color: '#4ade80',
-    text_color: '#052e16'
+  const depTimeInput = document.getElementById('dep-time');
+  const depKmInput = document.getElementById('dep-km');
+  const depLocInput = document.getElementById('dep-loc');
+  const purposeInput = document.getElementById('dep-purpose');
+
+  const depTime = depTimeInput ? depTimeInput.value : '';
+  const depKm = depKmInput ? parseFloat(depKmInput.value) || 0 : 0;
+  const depLoc = depLocInput ? depLocInput.value.trim() : '';
+  const purpose = purposeInput ? purposeInput.value.trim() : '';
+
+  if (!depTime) {
+    alert('請填寫出發時間');
+    return;
+  }
+
+  if (!depLoc) {
+    alert('請填寫出發地點');
+    return;
+  }
+
+  if (!purpose) {
+    alert('請填寫用途 / 事由');
+    return;
+  }
+
+  const checks = Array.from(
+    document.querySelectorAll('#check-grid input[type="checkbox"]:checked')
+  ).map((input) => input.value);
+
+  const { error } = await store.sb.from('records').insert({
+    user_name: store.selectedUser.name,
+    status: 'pending',
+    dep_time: new Date(depTime).toISOString(),
+    dep_km: depKm,
+    dep_loc: depLoc,
+    purpose,
+    checks
   });
 
   if (error) {
-    alert('新增失敗：' + (error.message || '未知錯誤'));
+    console.error('出車登記失敗：', error);
+    alert('出車登記失敗：' + (error.message || '未知錯誤'));
     return;
   }
 
-  input.value = '';
+  alert('出車登記成功');
+
+  if (depLocInput) depLocInput.value = '';
+  if (purposeInput) purposeInput.value = '';
+
+  document.querySelectorAll('#check-grid input[type="checkbox"]').forEach((input) => {
+    input.checked = false;
+  });
+
+  document.querySelectorAll('#check-grid .check-item').forEach((item) => {
+    item.classList.remove('checked');
+  });
+
   await fetchAllData();
-  renderUserBtns();
-  renderUserList();
 };
 
 window.saveSettings = async () => {
