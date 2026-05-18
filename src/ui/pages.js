@@ -43,7 +43,7 @@ export const renderUserBtns = () => {
     const btn = document.createElement('button');
     btn.className = 'user-btn';
 
-    if (store.selectedUser && store.selectedUser.id === user.id) {
+    if (store.selectedUser && String(store.selectedUser.id) === String(user.id)) {
       btn.classList.add('selected');
     }
 
