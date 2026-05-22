@@ -91,6 +91,17 @@ export const renderUserList = () => {
 
     row.appendChild(circle);
     row.appendChild(name);
+
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'btn btn-sm btn-danger';
+    delBtn.textContent = '刪除';
+    delBtn.style.marginLeft = '10px';
+    delBtn.addEventListener('click', () => {
+      if (window.removeUser) window.removeUser(user.id, user.name);
+    });
+    row.appendChild(delBtn);
+
     container.appendChild(row);
   });
 };
