@@ -361,12 +361,11 @@ option { background: #1a1a1c; }
 
 /* Mobile */
 @media (max-width: 640px) {
-  .sidebar { width: 100%; height: auto; position: static; flex-direction: row; overflow-x: auto; padding: 0.5rem; border-right: none; border-bottom: 1px solid var(--border); }
+  .sidebar { width: 100%; height: auto; position: static; flex-direction: column; overflow-x: auto; padding: 0.5rem; border-right: none; border-bottom: 1px solid var(--border); }
   .main { margin-left: 0; padding: 1rem; }
   .logo { display: none; }
   .nav-item { padding: 8px 14px; border-left: none; border-bottom: 2px solid transparent; white-space: nowrap; }
   .nav-item.active { border-left-color: transparent; border-bottom-color: var(--accent); }
-  .nav-divider { display: none; }
   .db-status { display: none; }
   .stat-grid { grid-template-columns: 1fr 1fr; }
   .grid2, .grid3 { grid-template-columns: 1fr; }
