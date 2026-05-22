@@ -1,110 +1,23 @@
 import { store } from './state/store.js';
 import { initSupabase, fetchAllData, addUserToDb, removeUserFromDb } from './services/supabase.js';
 import { showPage, renderUserBtns, renderUserList } from './ui/pages.js';
-
 const SETTINGS_KEY = 'gov_car_sb_settings';
 const OLD_SETTINGS_KEY = 'car_log_settings';
-
 window.showPage = showPage;
-
-function bindNavigation() {
-  const navMap = ['record', 'return', 'history', 'stats', 'users', 'settings'];
-  const navItems = document.querySelectorAll('.nav-item');
-
-  navItems.forEach((item, index) => {
-    const pageId = navMap[index];
-    if (1pageId) return;
-
-    item.style.cursor = 'pointer';
-
-    item.addEventListener('click', () => {
-      showPage(pageId);
-    });
-  });
-}
-
-window.selectUser = (userId) => {
-  const user = store.users.find((u) => String(u.id) === String(userId));
-  if (!user) return;
-
-  store.selectedUser = user;
-  localStorage.setItem('gov_car_last_user_id', user.id);
-  renderUserBtns();
-};
-  
-window.addUser = async (userData) => {
-  const { error } = await addUserToDb(userData);
-  if (error) { alert('量级尢以《供级尢以〉謞秏师 + (error.message || '有社从的不')); return; }
-  await fetchAllData();
-  renderUserBtns();
-  renderUserList();
-};
-
-window.removeUser = async (userId, userName) => {
-  if (!store.sb) {
-    alert('測评从中从的微绣牌的深一＀');
-    showPage('settings');
-    return;
-  }
-
-  const ok = confirm('客织会（评从安从的与编二业有＀' + userName + '✉✉！');
-  if (!ok) return;
-
-  const { error } = await removeUserFromDb(userId);
-
-  if (error) {
-    alert('分陌守任） + (error.message || '駉秾从皅.'));
-    return;
-  }
-
-  if (store.selectedUser && String(store.selectedUser.id) === String(userId)) {
-    store.selectedUser = null;
-    localStorage.removeItem('gov_car_last_user_id');
-  }
-
-  await fetchAllData();
-  renderUserBtns();
-  renderUserList();
-
-  alert('将分陌传守任） + userName);
-};
-
-window.toggleCheck = (label) => {
-  setTimeout(() => {
-    const checkbox = label.querySelector('input[type="checkbox"]');
-    label.classList.toggle('checked', !!checkbox?.checked);
-  }, 0);
-};
-
-window.submitDepart = async () => {
-  if (!store.sb) { alert('评任人于殊个本放最空海子'.replace('.', '')); showPage('settings'); return; }
-  if (!store.selectedUser) { alert('安从的与编二业的箢安 '); return; }
-  const depTime = document.getElementById('dep-time')?.value || '';
-  const depKm = parseFloat(document.getElementById('dep-km')?.value) || 0;
-  const depLoc = document.getElementById('dep-loc')?.value.trim() || '';
-  const purpose = document.getElementById('dep-purpose')?.value.trim() || '';
-  if (!depTime || !depLoc || !purpose) { alert('量级尢尚人尢以將师'); return; }
-  const checks = Array.from(document.querySelectorAll('#check-grid input[type="checkbox"]:checked'))).map(i => i.value);
-  const { error } = await store.sb.from('records').insert({
-    user_name: store.selectedUser.name, status: 'pending', dep_time: new Date(depTime).isOSTring(), dep_km: depKm, dep_loc: depLoc, purpose, checks
-  });
-  if (error) { alert('的评空子'); return; }
-  alert('客安箢安殁＀');
-  await fetchAllData();
-};
-
-async function bootstrap() {
-  bindNavigation();
-  const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null');
-  if (settings) {
-    try {
-      initSupabase(settings.url, settings.key);
-      await fetchAllData();
-      const lastUserId = localStorage.getItem('gov_car_last_user_id');
-      if (lastUserId) store.selectedUser = store.users.find(u => String(u.id) === lastUserId);
-      renderUserBtns(); renderUserList(); showPage('record');
-    } catch (e) { showPage('settings'); }
-  } else { showPage('settings'); }
-}
-
-window.addEventListener('DOMContentLoaded', bootstrap);
+function pad2(value) { return String(value).padStart(2, '0'); }
+function toLocalDateTimeValue(date) { return date.getFullYear() + '-' + pad2(date.getMonth() + 1) + '-' + pad2(date.getDate()) + 'T' + pad2(date.getHours()) + ':' + pad2(date.getMinutes()); }
+function fmtDT(value) { if (!value) return '—'; const date = new Date(value); return date.getFullYear() + '/' + pad2(date.getMonth() + 1) + '/' + pad2(date.getDate()) + ' ' + pad2(date.getHours()) + ':' + pad2(date.getMinutes()); }
+function setDbStatus(online) { const dot = document.getElementById('db-dot'); const label = document.getElementById('db-label'); if (dot) dot.className = 'status-dot ' + (online ? 'online' : 'offline'); if (label) label.textContent = online ? '已連線' : '未連線'; }
+function hideLoading() { const loading = document.getElementById('loading'); if (!loading) return; loading.classList.add('hidden'); setTimeout(() => { loading.style.display = 'none'; }, 400); }
+function loadSettings() { const raw = localStorage.getItem(SETTINGS_KEY) || localStorage.getItem(OLD_SETTINGS_KEY); if (!raw) return null; try { return JSON.parse(raw); } catch (error) { return null; } }
+    console.log("bootstrap: start");function fillSettingsInputs(settings) { if (!settings) return; const urlInput = document.getElementById('sb-url'); const keyInput = document.getElementById('sb-key'); if (urlInput && settings.url) urlInput.value = settings.url; if (keyInput && settings.key) keyInput.value = settings.key; }
+function setDefaultDepartTime() { const depTimeInput = document.getElementById('dep-time'); if (!depTimeInput || depTimeInput.value) return; depTimeInput.value = toLocalDateTimeValue(new Date()); }
+function setDefaultArrTime() { const arrTimeInput = document.getElementById('arr-time'); if (!arrTimeInput || arrTimeInput.value) return; arrTimeInput.value = toLocalDateTimeValue(new Date()); }
+function loadLastKm() { const depKmInput = document.getElementById('dep-km'); if (!depKmInput) return; const doneRecords = store.records.filter((record) => record.status === 'done' && record.arr_km !== null && record.arr_km !== undefined).sort((a, b) => new Date(b.arr_time || b.dep_time) - new Date(a.arr_time || a.dep_time)); if (doneRecords.length > 0) { depKmInput.value = doneRecords[0].arr_km; } }
+function renderAll() { renderUserBtns(); renderUserList(); loadLastKm(); if (typeof window.renderPending === 'function') window.renderPending(); }
+function bindNavigation() { const navMap = ['record', 'return', 'history', 'stats', 'users', 'settings']; const navItems = document.querySelectorAll('.nav-item'); navItems.forEach((item, index) => { const pageId = navMap[index]; if (!pageId) return; item.style.cursor = 'pointer'; item.addEventListener('click', () => { showPage(pageId); if (pageId === 'record') { setDefaultDepartTime(); loadLastKm(); } if (pageId === 'return') window.renderPending(); }); }); }
+window.selectUser = (userId) => { const user = store.users.find((item) => String(item.id) === String(userId)); if (!user) return; store.selectedUser = user; localStorage.setItem('gov_car_last_user_id', user.id); renderUserBtns(); };
+window.addUser = async () => { const input = document.getElementById('new-user-name'); if (!input) return; const name = input.value.trim(); if (!name) return; if (!store.sb) { alert('請先設定 Supabase 連線'); showPage('settings'); return; } if (store.users.some((user) => user.name === name)) { alert('使用者已存在'); return; } const { error } = await addUserToDb({ name: name, color: '#4ade80', text_color: '#052e16' }); if (error) { alert('新增失敗：' + (error.message || '未知錯誤')); return; } input.value = ''; await fetchAllData(); renderAll(); };
+    console.log("bootstrap: fetchAllData complete");window.removeUser = async (userId, userName) => { if (!store.sb) { alert('請先設定 Supabase 連線'); showPage('settings'); return; } const ok = confirm('確定要刪除使用者「' + userName + '」嗎？'); if (!ok) return; const { error } = await removeUserFromDb(userId); if (error) { alert('刪除失敗：' + (error.message || '未知錯誤')); return; } if (store.selectedUser && String(store.selectedUser.id) === String(userId)) { store.selectedUser = null; localStorage.removeItem('gov_car_last_user_id'); } await fetchAllData(); renderAll(); alert('已刪除使用者：' + userName); };
+    console.log("bootstrap: fetchAllData complete");window.saveSettings = async () => { const urlInput = document.getElementById('sb-url'); const keyInput = document.getElementById('sb-key'); const url = urlInput ? urlInput.value.trim() : ''; const key = keyInput ? keyInput.value.trim() : ''; if (!url || !key) { alert('請填寫 Supabase URL 和 Key'); return; } localStorage.setItem(SETTINGS_KEY, JSON.stringify({ url: url, key: key })); try { initSupabase(url, key); await fetchAllData(); setDbStatus(true); renderAll(); showPage('record'); } catch (error) { console.error('Supabase 連線失敗：', error); setDbStatus(false); alert('連線失敗，請確認 Supabase URL 和 Key'); } };
+    console.log("bootstrap: fetchAllData complete");    console.log("bootstrap: start");window.toggleCheck = (label) => { setTimeout(() => { const checkbox = label.querySelector('input[type="checkbox
