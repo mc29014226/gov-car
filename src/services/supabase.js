@@ -50,3 +50,8 @@ export const addUserToDb = async (userData) => {
 
   return await supabaseClient.from('users').insert([userData]);
 };
+
+export const removeUserFromDb = async (userId) => {
+  if (!supabaseClient) return { error: { message: 'Supabase not initialized' } };
+  return await supabaseClient.from('users').delete().eq('id', userId);
+};

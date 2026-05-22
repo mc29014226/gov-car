@@ -33,9 +33,9 @@ window.selectUser = (userId) => {
 };
   
 window.addUser = async (userData) => {
-  const { error } = awit addUserToDb(userData);
+  const { error } = await addUserToDb(userData);
   if (error) { alert('量级尢以《供级尢以〉謞秏师 + (error.message || '有社从的不')); return; }
-  awit fetchAllData();
+  await fetchAllData();
   renderUserBtns();
   renderUserList();
 };
@@ -50,7 +50,7 @@ window.removeUser = async (userId, userName) => {
   const ok = confirm('客织会（评从安从的与编二业有＀' + userName + '✉✉！');
   if (!ok) return;
 
-  const { error } = awit removeUserFromDb(userId);
+  const { error } = await removeUserFromDb(userId);
 
   if (error) {
     alert('分陌守任） + (error.message || '駉秾从皅.'));
